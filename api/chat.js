@@ -1,18 +1,18 @@
 const { Configuration, OpenAIApi } = require("openai");
 
-// Настройка API-ключа через переменную окружения
+// РќР°СЃС‚СЂРѕР№РєР° API-РєР»СЋС‡Р° С‡РµСЂРµР· РїРµСЂРµРјРµРЅРЅСѓСЋ РѕРєСЂСѓР¶РµРЅРёСЏ
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 const openai = new OpenAIApi(configuration);
 
-// Экспорт функции для Vercel
+// Р­РєСЃРїРѕСЂС‚ С„СѓРЅРєС†РёРё РґР»СЏ Vercel
 module.exports = async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {
-      return res.status(400).json({ error: "Поле 'message' отсутствует" });
+      return res.status(400).json({ error: "РџРѕР»Рµ 'message' РѕС‚СЃСѓС‚СЃС‚РІСѓРµС‚" });
     }
 
     const response = await openai.createChatCompletion({
@@ -23,6 +23,6 @@ module.exports = async (req, res) => {
     res.json({ reply: response.data.choices[0].message.content });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Произошла ошибка" });
+    res.status(500).json({ error: "РџСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР°" });
   }
 };
