@@ -1,15 +1,40 @@
-const axios = require("axios");
+// Подключаем библиотеку dotenv для работы с переменными окружения (только для локальной разработки)
+require('dotenv').config();
 
-const apiKey = "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"; // Замените на ваш ключ
+// Импортируем необходимые модули
+const express = require("express");
+const cors = require("cors");
+const { Configuration, OpenAIApi } = require("openai");
 
-axios.get("https://api.openai.com/v1/models", {
-  headers: {
-    "Authorization": `Bearer ${apiKey}`,
-  },
-})
-.then((response) => {
-  console.log(response.data);
-})
-.catch((error) => {
-  console.error("Ошибка:", error.response ? error.response.data : error.message);
+// Создаём экземпляр Express
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+// Настройка API-ключа через переменную окружения
+const configuration = new Configuration({
+  apiKey: process.env.OPENAI_API_KEY, // <- Здесь используется переменная окружения
+});
+
+const openai = new OpenAIApi(configuration);
+
+// Эндпоинт для отправки запросов к ChatGPT
+app.post("/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: message }, { role: "assistant", content: "" }],
+    });
+    res.json({ reply: response.data.choices[0].message.content });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Произошла ошибка" });
+  }
+});
+
+// Запускаем сервер
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Сервер запущен на порту ${PORT}`);
 });
