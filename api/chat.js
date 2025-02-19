@@ -1,13 +1,8 @@
-const { Configuration, OpenAIApi } = require("openai");
+const axios = require("axios");
 
 // Настройка API-ключа через переменную окружения
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const HF_API_KEY = process.env.HF_API_KEY;
 
-const openai = new OpenAIApi(configuration);
-
-// Экспорт функции для Vercel
 module.exports = async (req, res) => {
   try {
     const { message } = req.body;
@@ -15,12 +10,16 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Поле 'message' отсутствует" });
     }
 
-    const response = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: message }, { role: "assistant", content: "" }],
+    // Отправка запроса к Hugging Face API
+    const response = await axios.post("https://api-inference.huggingface.co/models/gpt2", {
+      inputs: message,
+    }, {
+      headers: {
+        Authorization: `Bearer ${HF_API_KEY}`,
+      },
     });
 
-    res.json({ reply: response.data.choices[0].message.content });
+    res.json({ reply: response.data[0].generated_text });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Произошла ошибка" });
