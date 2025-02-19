@@ -1,8 +1,5 @@
 const axios = require("axios");
 
-// Настройка API-ключа через переменную окружения
-const HF_API_KEY = process.env.HF_API_KEY;
-
 module.exports = async (req, res) => {
   try {
     const { message } = req.body;
@@ -10,12 +7,14 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Поле 'message' отсутствует" });
     }
 
-    // Отправка запроса к Hugging Face API
     const response = await axios.post("https://api-inference.huggingface.co/models/gpt2", {
       inputs: message,
+      parameters: {
+        max_new_tokens: 50, // Ограничить ответ до 50 токенов
+      },
     }, {
       headers: {
-        Authorization: `Bearer ${HF_API_KEY}`,
+        Authorization: `Bearer ${process.env.HF_API_KEY}`,
       },
     });
 
