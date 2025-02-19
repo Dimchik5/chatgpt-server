@@ -1,6 +1,15 @@
+const express = require("express");
 const axios = require("axios");
 
-module.exports = async (req, res) => {
+const app = express();
+app.use(express.json());
+
+// Настройка API-ключа через переменную окружения
+require('dotenv').config();
+const HF_API_KEY = process.env.HF_API_KEY;
+
+// Обработка POST-запросов к /chat
+app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {
@@ -14,7 +23,7 @@ module.exports = async (req, res) => {
       },
     }, {
       headers: {
-        Authorization: `Bearer ${process.env.HF_API_KEY}`,
+        Authorization: `Bearer ${HF_API_KEY}`,
       },
     });
 
@@ -23,4 +32,15 @@ module.exports = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Произошла ошибка" });
   }
-};
+});
+
+// Экспорт функции для Vercel
+module.exports = app;
+
+// Локальный запуск (только для тестирования)
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
