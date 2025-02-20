@@ -9,8 +9,8 @@ app.use(express.json());
 require('dotenv').config();
 const HF_API_KEY = process.env.HF_API_KEY;
 
-// Обработка POST-запросов к /chat
-app.post("/chat", async (req, res) => {
+// Обработка POST-запросов к /api/chat
+app.post("/api/chat", async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {
@@ -35,5 +35,12 @@ app.post("/chat", async (req, res) => {
   }
 });
 
-// Экспорт функции для Vercel
+// Экспорт приложения для локального запуска
+if (require.main === module) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
 module.exports = app;
