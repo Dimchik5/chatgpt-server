@@ -1,17 +1,21 @@
+const express = require("express");
 const axios = require("axios");
 
-// Подключаем dotenv для работы с переменными окружения
+const app = express();
+app.use(express.json());
+
+// Настройка API-ключа через переменную окружения
 require('dotenv').config();
 const HF_API_KEY = process.env.HF_API_KEY;
 
-module.exports = async (req, res) => {
+// Обработка POST-запросов к /chat
+app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
     if (!message) {
       return res.status(400).json({ error: "Поле 'message' отсутствует" });
     }
 
-    // Отправляем запрос к API Hugging Face
     const response = await axios.post("https://api-inference.huggingface.co/models/gpt2", {
       inputs: message,
       parameters: {
@@ -28,7 +32,10 @@ module.exports = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Произошла ошибка" });
   }
-};
+});
+
+// Экспорт функции для Vercel
+module.exports = app;
 
 // Локальный запуск (только для тестирования)
 if (!process.env.VERCEL) {
