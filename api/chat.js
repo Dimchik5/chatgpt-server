@@ -1,6 +1,7 @@
 const express = require("express");
 const axios = require("axios");
 
+// Создаем экземпляр Express
 const app = express();
 app.use(express.json());
 
@@ -36,11 +37,3 @@ app.post("/chat", async (req, res) => {
 
 // Экспорт функции для Vercel
 module.exports = app;
-
-// Локальный запуск (только для тестирования)
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
-  });
-}
