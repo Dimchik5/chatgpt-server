@@ -41,7 +41,7 @@ app.post("/api/chat", async (req, res) => {
       const chatResponse = await axios.post(
         "https://api-inference.huggingface.co/models/facebook/bart-large", // Используем facebook/bart-large
         {
-          inputs: `Ответь на вопрос: ${message}`,
+          inputs: message, // Убираем "Ответь на вопрос:", чтобы модель сама определяла контекст
         },
         {
           headers: {
@@ -50,7 +50,13 @@ app.post("/api/chat", async (req, res) => {
           },
         }
       );
-      reply = chatResponse.data[0].generated_text;
+
+      // Проверяем формат ответа
+      if (chatResponse.data && chatResponse.data[0] && chatResponse.data[0].generated_text) {
+        reply = chatResponse.data[0].generated_text;
+      } else {
+        reply = "Не удалось получить ответ.";
+      }
     }
 
     res.json({ reply });

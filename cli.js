@@ -14,21 +14,19 @@ const rl = readline.createInterface({
 // Функция для отправки сообщения на API
 async function sendMessage(message, mode) {
   try {
-    let url, responseKey, payload;
+    let url, payload;
 
     if (mode === "translate") {
       // Режим перевода
       url = "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-ru-en";
-      responseKey = "translation_text";
       payload = {
         inputs: message,
       };
     } else {
       // Режим ChatGPT (ответы на вопросы)
       url = "https://api-inference.huggingface.co/models/facebook/bart-large";
-      responseKey = "generated_text";
       payload = {
-        inputs: `Ответь на вопрос: ${message}`,
+        inputs: message, // Убираем "Ответь на вопрос:", чтобы модель сама определяла контекст
       };
     }
 
@@ -39,7 +37,12 @@ async function sendMessage(message, mode) {
       },
     });
 
-    return response.data[0][responseKey];
+    // Проверяем формат ответа
+    if (response.data && response.data[0] && response.data[0].generated_text) {
+      return response.data[0].generated_text;
+    } else {
+      return "Не удалось получить ответ.";
+    }
   } catch (error) {
     console.error("Ошибка:", error.message);
     return "Не удалось получить ответ.";
