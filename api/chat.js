@@ -27,6 +27,7 @@ app.post("/api/chat", async (req, res) => {
       {
         headers: {
           Authorization: `Bearer ${HF_API_KEY}`,
+          "Content-Type": "application/json",
         },
       }
     );
