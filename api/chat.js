@@ -22,7 +22,7 @@ app.post("/api/chat", async (req, res) => {
     let reply;
 
     if (mode === "translate") {
-      // Режим перевода
+      // Режим перевода (используем Helsinki-NLP/opus-mt-ru-en)
       const translationResponse = await axios.post(
         "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-ru-en",
         {
@@ -37,11 +37,11 @@ app.post("/api/chat", async (req, res) => {
       );
       reply = translationResponse.data[0].translation_text;
     } else {
-      // Режим ChatGPT (используем flan-t5-large)
+      // Режим ChatGPT (используем facebook/bart-large)
       const chatResponse = await axios.post(
-        "https://api-inference.huggingface.co/models/google/flan-t5-large",
+        "https://api-inference.huggingface.co/models/facebook/bart-large", // Используем facebook/bart-large
         {
-          inputs: message,
+          inputs: `Ответь на вопрос: ${message}`,
         },
         {
           headers: {
