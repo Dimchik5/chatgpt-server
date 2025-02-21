@@ -13,27 +13,51 @@ const HF_API_KEY = process.env.HF_API_KEY;
 // Обработка POST-запросов к /api/chat
 app.post("/api/chat", async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message, mode } = req.body;
+
     if (!message) {
       return res.status(400).json({ error: "Поле 'message' отсутствует" });
     }
 
-    // Используем модель для перевода
-    const response = await axios.post(
-      "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-ru-en",
-      {
-        inputs: message,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${HF_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    let reply;
 
-    // Возвращаем переведенный текст
-    res.json({ reply: response.data[0].translation_text });
+    if (mode === "translate") {
+      // Режим перевода
+      const translationResponse = await axios.post(
+        "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-ru-en",
+        {
+          inputs: message,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${HF_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      reply = translationResponse.data[0].translation_text;
+    } else {
+      // Режим ChatGPT (ответы на вопросы)
+      const chatResponse = await axios.post(
+        "https://api-inference.huggingface.co/models/gpt2",
+        {
+          inputs: message,
+          parameters: {
+            max_new_tokens: 50, // Ограничить ответ до 50 токенов
+            temperature: 0.7,   // Уменьшить "креативность"
+          },
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${HF_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      reply = chatResponse.data[0].generated_text;
+    }
+
+    res.json({ reply });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Произошла ошибка" });
