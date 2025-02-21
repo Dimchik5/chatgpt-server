@@ -37,15 +37,11 @@ app.post("/api/chat", async (req, res) => {
       );
       reply = translationResponse.data[0].translation_text;
     } else {
-      // Режим ChatGPT (ответы на вопросы)
+      // Режим ChatGPT (используем flan-t5-large)
       const chatResponse = await axios.post(
-        "https://api-inference.huggingface.co/models/gpt2",
+        "https://api-inference.huggingface.co/models/google/flan-t5-large",
         {
           inputs: message,
-          parameters: {
-            max_new_tokens: 50, // Ограничить ответ до 50 токенов
-            temperature: 0.7,   // Уменьшить "креативность"
-          },
         },
         {
           headers: {
