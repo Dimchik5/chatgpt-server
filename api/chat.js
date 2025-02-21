@@ -35,7 +35,13 @@ app.post("/api/chat", async (req, res) => {
           },
         }
       );
-      reply = translationResponse.data[0].translation_text;
+
+      // Проверяем формат ответа
+      if (translationResponse.data && translationResponse.data[0] && translationResponse.data[0].translation_text) {
+        reply = translationResponse.data[0].translation_text;
+      } else {
+        reply = "Не удалось получить перевод.";
+      }
     } else {
       // Режим ChatGPT (используем facebook/bart-large)
       const chatResponse = await axios.post(

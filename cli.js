@@ -38,10 +38,18 @@ async function sendMessage(message, mode) {
     });
 
     // Проверяем формат ответа
-    if (response.data && response.data[0] && response.data[0].generated_text) {
-      return response.data[0].generated_text;
+    if (mode === "translate") {
+      if (response.data && response.data[0] && response.data[0].translation_text) {
+        return response.data[0].translation_text;
+      } else {
+        return "Не удалось получить перевод.";
+      }
     } else {
-      return "Не удалось получить ответ.";
+      if (response.data && response.data[0] && response.data[0].generated_text) {
+        return response.data[0].generated_text;
+      } else {
+        return "Не удалось получить ответ.";
+      }
     }
   } catch (error) {
     console.error("Ошибка:", error.message);
