@@ -1,9 +1,10 @@
 const express = require("express");
 const axios = require("axios");
+const cors = require("cors"); // Добавляем cors
 
-// Создаем экземпляр Express
 const app = express();
 app.use(express.json());
+app.use(cors()); // Разрешаем запросы с любых доменов
 
 // Настройка API-ключа через переменную окружения
 require('dotenv').config();
@@ -34,6 +35,8 @@ app.post("/api/chat", async (req, res) => {
     res.status(500).json({ error: "Произошла ошибка" });
   }
 });
+
+// Экспорт приложения для Vercel module.exports = app;
 
 // Экспорт приложения для локального запуска
 if (require.main === module) {
